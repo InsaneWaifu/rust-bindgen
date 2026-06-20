@@ -1249,18 +1249,22 @@ impl<'a> Vtable<'a> {
         Vtable { item_id, comp_info }
     }
 
-    fn virtual_method_key(
-        ctx: &BindgenContext,
-        signature: FunctionId,
-    ) -> String {
-        let function = ctx.resolve_func(signature);
+    fn virtual_method_key(ctx: &BindgenContext, method: &Method) -> String {
+        let function = ctx.resolve_func(method.signature());
         let signature_item = ctx.resolve_item(function.signature());
         let TypeKind::Function(ref signature) =
             signature_item.expect_type().kind()
         else {
             panic!("Function signature type mismatch")
         };
-        signature.name().to_owned()
+        let mut key = signature.name().to_owned();
+        for &(_, ty) in signature.argument_types().iter().skip(1) {
+            key.push('|');
+            key.push_str(&ctx.resolve_item(ty).canonical_name(ctx));
+        }
+        key.push('|');
+        key.push_str(if method.is_const() { "const" } else { "mut" });
+        key
     }
 
     fn append_virtual_method_entry(
@@ -1272,7 +1276,7 @@ impl<'a> Vtable<'a> {
             return;
         }
 
-        let key = Self::virtual_method_key(ctx, method.signature());
+        let key = Self::virtual_method_key(ctx, method);
         let entry = VtableMethodEntry {
             signature: method.signature(),
             is_const: method.is_const(),
@@ -1381,7 +1385,7 @@ impl<'a> Vtable<'a> {
 
         vtable_method_entries
             .into_iter()
-            .filter_map(|(method_name, entry)| {
+            .filter_map(|(_, entry)| {
                 let function_item = ctx.resolve_item(entry.signature);
                 let function = function_item.expect_function();
                 let signature_item = ctx.resolve_item(function.signature());
@@ -1395,7 +1399,7 @@ impl<'a> Vtable<'a> {
                     return None;
                 }
 
-                let mut name = method_name;
+                let mut name = signature.name().to_owned();
                 if method_names.contains(&name) {
                     let mut count = 1;
                     let mut new_name;

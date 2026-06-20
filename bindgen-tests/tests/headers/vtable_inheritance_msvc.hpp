@@ -4,12 +4,16 @@ class PrimaryBase {
 public:
     virtual void RootMethod();
     virtual int Overridden(int value);
+    virtual int Alloc(int size);
+    virtual float Alloc(float size);
     virtual ~PrimaryBase();
 };
 
 class IntermediateClass : public PrimaryBase {
 public:
     int Overridden(int value) override;
+    int Alloc(int size) override;
+    float Alloc(float size) override;
     virtual void IntermediateMethod();
     virtual ~IntermediateClass();
 };

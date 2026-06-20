@@ -6,6 +6,14 @@ pub struct PrimaryBase__bindgen_vtable {
         this: *mut PrimaryBase,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
+    pub PrimaryBase_Alloc: unsafe extern "C" fn(
+        this: *mut PrimaryBase,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub PrimaryBase_Alloc1: unsafe extern "C" fn(
+        this: *mut PrimaryBase,
+        size: f32,
+    ) -> f32,
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut PrimaryBase),
     pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut PrimaryBase),
 }
@@ -42,6 +50,19 @@ impl PrimaryBase {
         ((*(self.vtable_ as *const PrimaryBase__bindgen_vtable))
             .PrimaryBase_Overridden)(self, value)
     }
+    #[inline]
+    pub unsafe fn Alloc(
+        &mut self,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self.vtable_ as *const PrimaryBase__bindgen_vtable))
+            .PrimaryBase_Alloc)(self, size)
+    }
+    #[inline]
+    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
+        ((*(self.vtable_ as *const PrimaryBase__bindgen_vtable))
+            .PrimaryBase_Alloc1)(self, size)
+    }
 }
 unsafe extern "C" {
     #[link_name = "\u{1}_ZN11PrimaryBase10RootMethodEv"]
@@ -55,6 +76,17 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
+    #[link_name = "\u{1}_ZN11PrimaryBase5AllocEi"]
+    pub fn PrimaryBase_Alloc(
+        this: *mut ::std::os::raw::c_void,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[link_name = "\u{1}_ZN11PrimaryBase5AllocEf"]
+    pub fn PrimaryBase_Alloc1(this: *mut ::std::os::raw::c_void, size: f32) -> f32;
+}
+unsafe extern "C" {
     #[link_name = "\u{1}_ZN11PrimaryBaseD1Ev"]
     pub fn PrimaryBase_PrimaryBase_destructor(this: *mut PrimaryBase);
 }
@@ -65,6 +97,14 @@ pub struct IntermediateClass__bindgen_vtable {
         this: *mut IntermediateClass,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc: unsafe extern "C" fn(
+        this: *mut IntermediateClass,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc1: unsafe extern "C" fn(
+        this: *mut IntermediateClass,
+        size: f32,
+    ) -> f32,
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
         this: *mut IntermediateClass,
     ),
@@ -111,6 +151,19 @@ impl IntermediateClass {
             .IntermediateClass_Overridden)(self, value)
     }
     #[inline]
+    pub unsafe fn Alloc(
+        &mut self,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self._base.vtable_ as *const IntermediateClass__bindgen_vtable))
+            .IntermediateClass_Alloc)(self, size)
+    }
+    #[inline]
+    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
+        ((*(self._base.vtable_ as *const IntermediateClass__bindgen_vtable))
+            .IntermediateClass_Alloc1)(self, size)
+    }
+    #[inline]
     pub unsafe fn IntermediateMethod(&mut self) {
         ((*(self._base.vtable_ as *const IntermediateClass__bindgen_vtable))
             .IntermediateClass_IntermediateMethod)(self)
@@ -122,6 +175,17 @@ unsafe extern "C" {
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[link_name = "\u{1}_ZN17IntermediateClass5AllocEi"]
+    pub fn IntermediateClass_Alloc(
+        this: *mut ::std::os::raw::c_void,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+}
+unsafe extern "C" {
+    #[link_name = "\u{1}_ZN17IntermediateClass5AllocEf"]
+    pub fn IntermediateClass_Alloc1(this: *mut ::std::os::raw::c_void, size: f32) -> f32;
 }
 unsafe extern "C" {
     #[link_name = "\u{1}_ZN17IntermediateClass18IntermediateMethodEv"]
@@ -138,6 +202,14 @@ pub struct LeafClass__bindgen_vtable {
         this: *mut LeafClass,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc: unsafe extern "C" fn(
+        this: *mut LeafClass,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc1: unsafe extern "C" fn(
+        this: *mut LeafClass,
+        size: f32,
+    ) -> f32,
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(this: *mut LeafClass),
     pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut LeafClass),
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut LeafClass),
@@ -175,6 +247,19 @@ impl LeafClass {
     ) -> ::std::os::raw::c_int {
         ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
             .IntermediateClass_Overridden)(self, value)
+    }
+    #[inline]
+    pub unsafe fn Alloc(
+        &mut self,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
+            .IntermediateClass_Alloc)(self, size)
+    }
+    #[inline]
+    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
+        ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
+            .IntermediateClass_Alloc1)(self, size)
     }
     #[inline]
     pub unsafe fn IntermediateMethod(&mut self) {
@@ -250,6 +335,14 @@ pub struct MultipleDerivedClass__bindgen_vtable {
         this: *mut MultipleDerivedClass,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc1: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
+        size: f32,
+    ) -> f32,
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
         this: *mut MultipleDerivedClass,
     ),
@@ -308,6 +401,21 @@ impl MultipleDerivedClass {
         ((*(self._base._base._base.vtable_
             as *const MultipleDerivedClass__bindgen_vtable))
             .IntermediateClass_Overridden)(self, value)
+    }
+    #[inline]
+    pub unsafe fn Alloc(
+        &mut self,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self._base._base._base.vtable_
+            as *const MultipleDerivedClass__bindgen_vtable))
+            .IntermediateClass_Alloc)(self, size)
+    }
+    #[inline]
+    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
+        ((*(self._base._base._base.vtable_
+            as *const MultipleDerivedClass__bindgen_vtable))
+            .IntermediateClass_Alloc1)(self, size)
     }
     #[inline]
     pub unsafe fn IntermediateMethod(&mut self) {
