@@ -1,3 +1,5 @@
+// bindgen-flags: -- --target=x86_64-pc-windows-msvc
+
 class PrimaryBase {
 public:
     virtual void RootMethod();

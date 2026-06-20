@@ -31,7 +31,9 @@ impl CppObj {
     }
 }
 #[repr(C)]
-pub struct CppObj2__bindgen_vtable(::std::os::raw::c_void);
+pub struct CppObj2__bindgen_vtable {
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut CppObj2),
+}
 #[repr(C)]
 #[derive(Debug)]
 pub struct CppObj2 {
@@ -70,6 +72,10 @@ unsafe extern "C" {
     pub fn CppObj2_CppObj2_destructor(this: *mut CppObj2);
 }
 #[repr(C)]
+pub struct CppObj3__bindgen_vtable {
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut CppObj3),
+}
+#[repr(C)]
 #[derive(Debug)]
 pub struct CppObj3 {
     pub _base: CppObj2,
@@ -105,6 +111,10 @@ impl CppObj3 {
 unsafe extern "C" {
     #[link_name = "\u{1}??1CppObj3@@UEAA@XZ"]
     pub fn CppObj3_CppObj3_destructor(this: *mut CppObj3);
+}
+#[repr(C)]
+pub struct CppObj4__bindgen_vtable {
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut CppObj4),
 }
 #[repr(C)]
 #[derive(Debug)]

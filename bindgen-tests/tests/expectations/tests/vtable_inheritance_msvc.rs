@@ -7,7 +7,6 @@ pub struct PrimaryBase__bindgen_vtable {
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut PrimaryBase),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut PrimaryBase),
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -29,18 +28,18 @@ impl Default for PrimaryBase {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN11PrimaryBase10RootMethodEv"]
+    #[link_name = "\u{1}?RootMethod@PrimaryBase@@UEAAXXZ"]
     pub fn PrimaryBase_RootMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN11PrimaryBase10OverriddenEi"]
+    #[link_name = "\u{1}?Overridden@PrimaryBase@@UEAAHH@Z"]
     pub fn PrimaryBase_Overridden(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN11PrimaryBaseD1Ev"]
+    #[link_name = "\u{1}??1PrimaryBase@@UEAA@XZ"]
     pub fn PrimaryBase_PrimaryBase_destructor(this: *mut PrimaryBase);
 }
 #[repr(C)]
@@ -54,9 +53,6 @@ pub struct IntermediateClass__bindgen_vtable {
         this: *mut IntermediateClass,
     ),
     pub __bindgen_destructor_complete: unsafe extern "C" fn(
-        this: *mut IntermediateClass,
-    ),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(
         this: *mut IntermediateClass,
     ),
 }
@@ -82,18 +78,18 @@ impl Default for IntermediateClass {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN17IntermediateClass10OverriddenEi"]
+    #[link_name = "\u{1}?Overridden@IntermediateClass@@UEAAHH@Z"]
     pub fn IntermediateClass_Overridden(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN17IntermediateClass18IntermediateMethodEv"]
+    #[link_name = "\u{1}?IntermediateMethod@IntermediateClass@@UEAAXXZ"]
     pub fn IntermediateClass_IntermediateMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN17IntermediateClassD1Ev"]
+    #[link_name = "\u{1}??1IntermediateClass@@UEAA@XZ"]
     pub fn IntermediateClass_IntermediateClass_destructor(this: *mut IntermediateClass);
 }
 #[repr(C)]
@@ -106,7 +102,6 @@ pub struct LeafClass__bindgen_vtable {
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(this: *mut LeafClass),
     pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut LeafClass),
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut LeafClass),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut LeafClass),
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -128,11 +123,11 @@ impl Default for LeafClass {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN9LeafClass10LeafMethodEv"]
+    #[link_name = "\u{1}?LeafMethod@LeafClass@@UEAAXXZ"]
     pub fn LeafClass_LeafMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN9LeafClassD1Ev"]
+    #[link_name = "\u{1}??1LeafClass@@UEAA@XZ"]
     pub fn LeafClass_LeafClass_destructor(this: *mut LeafClass);
 }
 #[repr(C)]
@@ -142,7 +137,6 @@ pub struct SecondaryBase__bindgen_vtable {
         value: f32,
     ) -> f32,
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut SecondaryBase),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut SecondaryBase),
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -164,14 +158,14 @@ impl Default for SecondaryBase {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZNK13SecondaryBase15SecondaryMethodEf"]
+    #[link_name = "\u{1}?SecondaryMethod@SecondaryBase@@UEBAMM@Z"]
     pub fn SecondaryBase_SecondaryMethod(
         this: *mut ::std::os::raw::c_void,
         value: f32,
     ) -> f32;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN13SecondaryBaseD1Ev"]
+    #[link_name = "\u{1}??1SecondaryBase@@UEAA@XZ"]
     pub fn SecondaryBase_SecondaryBase_destructor(this: *mut SecondaryBase);
 }
 #[repr(C)]
@@ -196,9 +190,6 @@ pub struct MultipleDerivedClass__bindgen_vtable {
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint,
     pub __bindgen_destructor_complete: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(
         this: *mut MultipleDerivedClass,
     ),
 }
@@ -227,25 +218,25 @@ impl Default for MultipleDerivedClass {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN20MultipleDerivedClass10RootMethodEv"]
+    #[link_name = "\u{1}?RootMethod@MultipleDerivedClass@@UEAAXXZ"]
     pub fn MultipleDerivedClass_RootMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZThn8_NK20MultipleDerivedClass15SecondaryMethodEf"]
+    #[link_name = "\u{1}?SecondaryMethod@MultipleDerivedClass@@UEBAMM@Z"]
     pub fn MultipleDerivedClass_SecondaryMethod(
         this: *mut ::std::os::raw::c_void,
         value: f32,
     ) -> f32;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN20MultipleDerivedClass12MultipleOnlyEj"]
+    #[link_name = "\u{1}?MultipleOnly@MultipleDerivedClass@@UEAAII@Z"]
     pub fn MultipleDerivedClass_MultipleOnly(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN20MultipleDerivedClassD1Ev"]
+    #[link_name = "\u{1}??1MultipleDerivedClass@@UEAA@XZ"]
     pub fn MultipleDerivedClass_MultipleDerivedClass_destructor(
         this: *mut MultipleDerivedClass,
     );
