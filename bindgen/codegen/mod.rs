@@ -24,6 +24,7 @@ use crate::callbacks::{
     AttributeInfo, DeriveInfo, DiscoveredItem, DiscoveredItemId,
     FieldAttributeInfo, FieldInfo, TypeKind as DeriveTypeKind,
 };
+use crate::clang::ABIKind;
 use crate::codegen::error::Error;
 use crate::ir::analysis::{HasVtable, Sizedness};
 use crate::ir::annotations::{
@@ -1258,16 +1259,50 @@ impl CodeGenerator for Vtable<'_> {
         debug_assert!(item.is_enabled_for_codegen(ctx));
         let name = ctx.rust_ident(self.canonical_name(ctx));
 
-        // For now, we will only generate vtables for classes that:
-        // - do not inherit from others (compilers merge VTable from primary parent class).
-        // - do not contain a virtual destructor (requires ordering; platforms generate different vtables).
         if ctx.options().vtable_generation &&
-            self.comp_info.base_members().is_empty() &&
-            self.comp_info.destructor().is_none()
+            (self.comp_info.base_members().is_empty() ||
+                self.comp_info.has_own_virtual_method() ||
+                matches!(
+                    self.comp_info.destructor(),
+                    Some((MethodKind::VirtualDestructor { .. }, _))
+                )) &&
+            self.comp_info.base_members().iter().all(|base| !base.is_virtual())
         {
             let class_ident = ctx.rust_ident(self.item_id.canonical_name(ctx));
 
-            let methods = self
+            let inherited_vtables =
+                self.comp_info.base_members().iter().filter_map(|base| {
+                    if !base.requires_storage(ctx) {
+                        return None;
+                    }
+
+                    let base_item = ctx.resolve_item(base.ty);
+                    if !base_item.has_vtable(ctx) {
+                        return None;
+                    }
+
+                    let TypeKind::Comp(ref base_comp_info) =
+                        base_item.expect_type().canonical_type(ctx).kind()
+                    else {
+                        return None;
+                    };
+                    let vtable = Vtable::new(base_item.id(), base_comp_info);
+                    let vtable_ident = vtable
+                        .try_to_rust_ty(ctx, &())
+                        .expect("vtable to Rust type conversion is infallible");
+                    let field_name = ctx.rust_ident(format!(
+                        "_base_{}_vtable",
+                        base_item.canonical_name(ctx)
+                    ));
+
+                    Some(quote! {
+                        pub #field_name : #vtable_ident
+                    })
+                });
+
+            let mut entries = inherited_vtables.collect::<Vec<_>>();
+
+            entries.extend(self
                 .comp_info
                 .methods()
                 .iter()
@@ -1299,12 +1334,39 @@ impl CodeGenerator for Vtable<'_> {
                         pub #function_name : unsafe extern "C" fn( #( #args ),* ) #ret
                     })
                 })
-                .collect::<Vec<_>>();
+                .collect::<Vec<_>>());
+
+            if let Some((MethodKind::VirtualDestructor { .. }, destructor)) =
+                self.comp_info.destructor()
+            {
+                let function_item = ctx.resolve_item(destructor);
+                let function = function_item.expect_function();
+                let signature_item = ctx.resolve_item(function.signature());
+                let TypeKind::Function(ref signature) =
+                    signature_item.expect_type().kind()
+                else {
+                    panic!("Function signature type mismatch")
+                };
+
+                let mut args = utils::fnsig_arguments(ctx, signature);
+                let ret = utils::fnsig_return_ty(ctx, signature);
+                args[0] = quote! { this: *mut #class_ident };
+
+                entries.push(quote! {
+                    pub __bindgen_destructor_complete: unsafe extern "C" fn( #( #args ),* ) #ret
+                });
+
+                if ctx.abi_kind() == ABIKind::GenericItanium {
+                    entries.push(quote! {
+                        pub __bindgen_destructor_deleting: unsafe extern "C" fn( #( #args ),* ) #ret
+                    });
+                }
+            }
 
             result.push(quote! {
                 #[repr(C)]
                 pub struct #name {
-                    #( #methods ),*
+                    #( #entries ),*
                 }
             });
         } else {
@@ -2250,20 +2312,30 @@ impl CodeGenerator for CompInfo {
         }
 
         if !is_opaque {
-            if item.has_vtable_ptr(ctx) {
+            if item.has_vtable(ctx) &&
+                ctx.options().vtable_generation &&
+                (item.has_vtable_ptr(ctx) ||
+                    self.has_own_virtual_method() ||
+                    matches!(
+                        self.destructor(),
+                        Some((MethodKind::VirtualDestructor { .. }, _))
+                    ))
+            {
                 let vtable = Vtable::new(item.id(), self);
                 vtable.codegen(ctx, result, item);
 
-                let vtable_type = vtable
-                    .try_to_rust_ty(ctx, &())
-                    .expect("vtable to Rust type conversion is infallible")
-                    .to_ptr(true);
+                if item.has_vtable_ptr(ctx) {
+                    let vtable_type = vtable
+                        .try_to_rust_ty(ctx, &())
+                        .expect("vtable to Rust type conversion is infallible")
+                        .to_ptr(true);
 
-                fields.push(quote! {
-                    pub vtable_: #vtable_type ,
-                });
+                    fields.push(quote! {
+                        pub vtable_: #vtable_type ,
+                    });
 
-                struct_layout.saw_vtable();
+                    struct_layout.saw_vtable();
+                }
             }
 
             for base in self.base_members() {

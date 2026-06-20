@@ -1,6 +1,9 @@
 #![allow(dead_code, non_snake_case, non_camel_case_types, non_upper_case_globals)]
 #[repr(C)]
-pub struct nsSlots__bindgen_vtable(::std::os::raw::c_void);
+pub struct nsSlots__bindgen_vtable {
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut nsSlots),
+    pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut nsSlots),
+}
 #[repr(C)]
 #[derive(Debug)]
 pub struct nsSlots {
