@@ -34,7 +34,7 @@ use crate::ir::comp::{
     Bitfield, BitfieldUnit, CompInfo, CompKind, Field, FieldData, FieldMethods,
     Method, MethodKind,
 };
-use crate::ir::context::{BindgenContext, ItemId};
+use crate::ir::context::{BindgenContext, FunctionId, ItemId};
 use crate::ir::derive::{
     CanDerive, CanDeriveCopy, CanDeriveDebug, CanDeriveDefault, CanDeriveEq,
     CanDeriveHash, CanDeriveOrd, CanDerivePartialEq, CanDerivePartialOrd,
@@ -1239,9 +1239,81 @@ struct Vtable<'a> {
     comp_info: &'a CompInfo,
 }
 
+struct VtableMethodEntry {
+    signature: FunctionId,
+    is_const: bool,
+}
+
 impl<'a> Vtable<'a> {
     fn new(item_id: ItemId, comp_info: &'a CompInfo) -> Self {
         Vtable { item_id, comp_info }
+    }
+
+    fn virtual_method_key(
+        ctx: &BindgenContext,
+        signature: FunctionId,
+    ) -> String {
+        let function = ctx.resolve_func(signature);
+        let signature_item = ctx.resolve_item(function.signature());
+        let TypeKind::Function(ref signature) =
+            signature_item.expect_type().kind()
+        else {
+            panic!("Function signature type mismatch")
+        };
+        signature.name().to_owned()
+    }
+
+    fn append_virtual_method_entry(
+        ctx: &BindgenContext,
+        entries: &mut Vec<(String, VtableMethodEntry)>,
+        method: &Method,
+    ) {
+        if !method.is_virtual() {
+            return;
+        }
+
+        let key = Self::virtual_method_key(ctx, method.signature());
+        let entry = VtableMethodEntry {
+            signature: method.signature(),
+            is_const: method.is_const(),
+        };
+
+        if let Some((_, existing_entry)) =
+            entries.iter_mut().find(|(existing_key, _)| *existing_key == key)
+        {
+            *existing_entry = entry;
+        } else {
+            entries.push((key, entry));
+        }
+    }
+
+    fn append_virtual_method_entries(
+        ctx: &BindgenContext,
+        comp_info: &CompInfo,
+        entries: &mut Vec<(String, VtableMethodEntry)>,
+    ) {
+        for base in comp_info.base_members() {
+            if base.is_virtual() || !base.requires_storage(ctx) {
+                continue;
+            }
+
+            let base_item = ctx.resolve_item(base.ty);
+            if !base_item.has_vtable(ctx) {
+                continue;
+            }
+
+            let TypeKind::Comp(ref base_comp_info) =
+                base_item.expect_type().canonical_type(ctx).kind()
+            else {
+                continue;
+            };
+
+            Self::append_virtual_method_entries(ctx, base_comp_info, entries);
+        }
+
+        for method in comp_info.methods() {
+            Self::append_virtual_method_entry(ctx, entries, method);
+        }
     }
 }
 
@@ -1270,48 +1342,17 @@ impl CodeGenerator for Vtable<'_> {
         {
             let class_ident = ctx.rust_ident(self.item_id.canonical_name(ctx));
 
-            let inherited_vtables =
-                self.comp_info.base_members().iter().filter_map(|base| {
-                    if !base.requires_storage(ctx) {
-                        return None;
-                    }
+            let mut vtable_method_entries = vec![];
+            Self::append_virtual_method_entries(
+                ctx,
+                self.comp_info,
+                &mut vtable_method_entries,
+            );
 
-                    let base_item = ctx.resolve_item(base.ty);
-                    if !base_item.has_vtable(ctx) {
-                        return None;
-                    }
-
-                    let TypeKind::Comp(ref base_comp_info) =
-                        base_item.expect_type().canonical_type(ctx).kind()
-                    else {
-                        return None;
-                    };
-                    let vtable = Vtable::new(base_item.id(), base_comp_info);
-                    let vtable_ident = vtable
-                        .try_to_rust_ty(ctx, &())
-                        .expect("vtable to Rust type conversion is infallible");
-                    let field_name = ctx.rust_ident(format!(
-                        "_base_{}_vtable",
-                        base_item.canonical_name(ctx)
-                    ));
-
-                    Some(quote! {
-                        pub #field_name : #vtable_ident
-                    })
-                });
-
-            let mut entries = inherited_vtables.collect::<Vec<_>>();
-
-            entries.extend(self
-                .comp_info
-                .methods()
+            let mut entries = vtable_method_entries
                 .iter()
-                .filter_map(|m| {
-                    if !m.is_virtual() {
-                        return None;
-                    }
-
-                    let function_item = ctx.resolve_item(m.signature());
+                .map(|(_, entry)| {
+                    let function_item = ctx.resolve_item(entry.signature);
                     let function = function_item.expect_function();
                     let signature_item = ctx.resolve_item(function.signature());
                     let TypeKind::Function(ref signature) = signature_item.expect_type().kind() else { panic!("Function signature type mismatch") };
@@ -1324,17 +1365,17 @@ impl CodeGenerator for Vtable<'_> {
                     let mut args = utils::fnsig_arguments(ctx, signature);
                     let ret = utils::fnsig_return_ty(ctx, signature);
 
-                    args[0] = if m.is_const() {
+                    args[0] = if entry.is_const {
                         quote! { this: *const #class_ident }
                     } else {
                         quote! { this: *mut #class_ident }
                     };
 
-                    Some(quote! {
+                    quote! {
                         pub #function_name : unsafe extern "C" fn( #( #args ),* ) #ret
-                    })
+                    }
                 })
-                .collect::<Vec<_>>());
+                .collect::<Vec<_>>();
 
             if let Some((MethodKind::VirtualDestructor { .. }, destructor)) =
                 self.comp_info.destructor()

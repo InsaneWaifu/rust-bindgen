@@ -72,7 +72,7 @@ unsafe extern "C" {
 }
 #[repr(C)]
 pub struct DerivedVtable__bindgen_vtable {
-    pub _base_BaseVtable_vtable: BaseVtable__bindgen_vtable,
+    pub BaseVtable_BaseMethod: unsafe extern "C" fn(this: *mut DerivedVtable),
     pub DerivedVtable_Overridden: unsafe extern "C" fn(
         this: *mut DerivedVtable,
         value: ::std::os::raw::c_int,
@@ -111,11 +111,13 @@ unsafe extern "C" {
 }
 #[repr(C)]
 pub struct MultiDerivedVtable__bindgen_vtable {
-    pub _base_BaseVtable_vtable: BaseVtable__bindgen_vtable,
-    pub _base_OtherBaseVtable_vtable: OtherBaseVtable__bindgen_vtable,
     pub MultiDerivedVtable_BaseMethod: unsafe extern "C" fn(
         this: *mut MultiDerivedVtable,
     ),
+    pub BaseVtable_Overridden: unsafe extern "C" fn(
+        this: *mut MultiDerivedVtable,
+        value: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
     pub MultiDerivedVtable_OtherMethod: unsafe extern "C" fn(
         this: *const MultiDerivedVtable,
         value: f32,
