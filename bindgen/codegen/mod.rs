@@ -1395,7 +1395,7 @@ impl<'a> Vtable<'a> {
                     return None;
                 }
 
-                let mut name = format!("call_virtual_{method_name}");
+                let mut name = method_name;
                 if method_names.contains(&name) {
                     let mut count = 1;
                     let mut new_name;

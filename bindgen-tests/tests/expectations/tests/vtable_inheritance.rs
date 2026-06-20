@@ -30,12 +30,12 @@ impl Default for PrimaryBase {
 }
 impl PrimaryBase {
     #[inline]
-    pub unsafe fn call_virtual_RootMethod(&mut self) {
+    pub unsafe fn RootMethod(&mut self) {
         ((*(self.vtable_ as *const PrimaryBase__bindgen_vtable))
             .PrimaryBase_RootMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_Overridden(
+    pub unsafe fn Overridden(
         &mut self,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -98,12 +98,12 @@ impl Default for IntermediateClass {
 }
 impl IntermediateClass {
     #[inline]
-    pub unsafe fn call_virtual_RootMethod(&mut self) {
+    pub unsafe fn RootMethod(&mut self) {
         ((*(self._base.vtable_ as *const IntermediateClass__bindgen_vtable))
             .PrimaryBase_RootMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_Overridden(
+    pub unsafe fn Overridden(
         &mut self,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -111,7 +111,7 @@ impl IntermediateClass {
             .IntermediateClass_Overridden)(self, value)
     }
     #[inline]
-    pub unsafe fn call_virtual_IntermediateMethod(&mut self) {
+    pub unsafe fn IntermediateMethod(&mut self) {
         ((*(self._base.vtable_ as *const IntermediateClass__bindgen_vtable))
             .IntermediateClass_IntermediateMethod)(self)
     }
@@ -164,12 +164,12 @@ impl Default for LeafClass {
 }
 impl LeafClass {
     #[inline]
-    pub unsafe fn call_virtual_RootMethod(&mut self) {
+    pub unsafe fn RootMethod(&mut self) {
         ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
             .PrimaryBase_RootMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_Overridden(
+    pub unsafe fn Overridden(
         &mut self,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -177,12 +177,12 @@ impl LeafClass {
             .IntermediateClass_Overridden)(self, value)
     }
     #[inline]
-    pub unsafe fn call_virtual_IntermediateMethod(&mut self) {
+    pub unsafe fn IntermediateMethod(&mut self) {
         ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
             .IntermediateClass_IntermediateMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_LeafMethod(&mut self) {
+    pub unsafe fn LeafMethod(&mut self) {
         ((*(self._base._base.vtable_ as *const LeafClass__bindgen_vtable))
             .LeafClass_LeafMethod)(self)
     }
@@ -225,7 +225,7 @@ impl Default for SecondaryBase {
 }
 impl SecondaryBase {
     #[inline]
-    pub unsafe fn call_virtual_SecondaryMethod(&self, value: f32) -> f32 {
+    pub unsafe fn SecondaryMethod(&self, value: f32) -> f32 {
         ((*(self.vtable_ as *const SecondaryBase__bindgen_vtable))
             .SecondaryBase_SecondaryMethod)(self, value)
     }
@@ -295,13 +295,13 @@ impl Default for MultipleDerivedClass {
 }
 impl MultipleDerivedClass {
     #[inline]
-    pub unsafe fn call_virtual_RootMethod(&mut self) {
+    pub unsafe fn RootMethod(&mut self) {
         ((*(self._base._base._base.vtable_
             as *const MultipleDerivedClass__bindgen_vtable))
             .MultipleDerivedClass_RootMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_Overridden(
+    pub unsafe fn Overridden(
         &mut self,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int {
@@ -310,25 +310,25 @@ impl MultipleDerivedClass {
             .IntermediateClass_Overridden)(self, value)
     }
     #[inline]
-    pub unsafe fn call_virtual_IntermediateMethod(&mut self) {
+    pub unsafe fn IntermediateMethod(&mut self) {
         ((*(self._base._base._base.vtable_
             as *const MultipleDerivedClass__bindgen_vtable))
             .IntermediateClass_IntermediateMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_LeafMethod(&mut self) {
+    pub unsafe fn LeafMethod(&mut self) {
         ((*(self._base._base._base.vtable_
             as *const MultipleDerivedClass__bindgen_vtable))
             .LeafClass_LeafMethod)(self)
     }
     #[inline]
-    pub unsafe fn call_virtual_SecondaryMethod(&self, value: f32) -> f32 {
+    pub unsafe fn SecondaryMethod(&self, value: f32) -> f32 {
         ((*(self._base._base._base.vtable_
             as *const MultipleDerivedClass__bindgen_vtable))
             .MultipleDerivedClass_SecondaryMethod)(self, value)
     }
     #[inline]
-    pub unsafe fn call_virtual_MultipleOnly(
+    pub unsafe fn MultipleOnly(
         &mut self,
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint {
