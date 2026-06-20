@@ -1315,6 +1315,132 @@ impl<'a> Vtable<'a> {
             Self::append_virtual_method_entry(ctx, entries, method);
         }
     }
+
+    fn vtable_ptr_expr(
+        ctx: &BindgenContext,
+        item: &Item,
+        comp_info: &CompInfo,
+        base_expr: proc_macro2::TokenStream,
+    ) -> Option<proc_macro2::TokenStream> {
+        if item.has_vtable_ptr(ctx) {
+            return Some(quote! { #base_expr . vtable_ });
+        }
+
+        for base in comp_info.base_members() {
+            if base.is_virtual() || !base.requires_storage(ctx) {
+                continue;
+            }
+
+            let base_item = ctx.resolve_item(base.ty);
+            if !base_item.has_vtable(ctx) {
+                continue;
+            }
+
+            let TypeKind::Comp(ref base_comp_info) =
+                base_item.expect_type().canonical_type(ctx).kind()
+            else {
+                continue;
+            };
+            let base_field = ctx.rust_ident(base.field_name.as_str());
+            let base_expr = quote! { #base_expr . #base_field };
+            if let Some(expr) =
+                Self::vtable_ptr_expr(ctx, base_item, base_comp_info, base_expr)
+            {
+                return Some(expr);
+            }
+        }
+
+        None
+    }
+
+    fn codegen_call_methods(
+        ctx: &BindgenContext,
+        item: &Item,
+        comp_info: &CompInfo,
+        method_names: &mut HashSet<String>,
+    ) -> Vec<proc_macro2::TokenStream> {
+        if !ctx.options().vtable_generation || !item.has_vtable(ctx) {
+            return vec![];
+        }
+
+        let Some(vtable_ptr) =
+            Self::vtable_ptr_expr(ctx, item, comp_info, quote! { self })
+        else {
+            return vec![];
+        };
+
+        let vtable_ty = Vtable::new(item.id(), comp_info)
+            .try_to_rust_ty(ctx, &())
+            .expect("vtable to Rust type conversion is infallible");
+        let mut vtable_method_entries = vec![];
+        Self::append_virtual_method_entries(
+            ctx,
+            comp_info,
+            &mut vtable_method_entries,
+        );
+
+        vtable_method_entries
+            .into_iter()
+            .filter_map(|(method_name, entry)| {
+                let function_item = ctx.resolve_item(entry.signature);
+                let function = function_item.expect_function();
+                let signature_item = ctx.resolve_item(function.signature());
+                let TypeKind::Function(ref signature) =
+                    signature_item.expect_type().kind()
+                else {
+                    panic!("Function signature type mismatch")
+                };
+
+                if signature.is_variadic() {
+                    return None;
+                }
+
+                let mut name = format!("call_virtual_{method_name}");
+                if method_names.contains(&name) {
+                    let mut count = 1;
+                    let mut new_name;
+                    while {
+                        new_name = format!("{name}{count}");
+                        method_names.contains(&new_name)
+                    } {
+                        count += 1;
+                    }
+                    name = new_name;
+                }
+                method_names.insert(name.clone());
+                let name = ctx.rust_ident(name);
+
+                let function_name = ctx.rust_ident(function_item.canonical_name(ctx));
+                let mut args = utils::fnsig_arguments(ctx, signature);
+                let mut exprs = utils::fnsig_argument_identifiers(ctx, signature);
+                let ret = utils::fnsig_return_ty(ctx, signature);
+
+                args[0] = if entry.is_const {
+                    quote! { &self }
+                } else {
+                    quote! { &mut self }
+                };
+                exprs[0] = quote! { self };
+
+                let call = quote! {
+                    ((* (#vtable_ptr as *const #vtable_ty)).#function_name)(#( #exprs ),*)
+                };
+                let block = ctx.wrap_unsafe_ops(call);
+
+                let mut attrs = vec![attributes::inline()];
+                if signature.must_use() {
+                    attrs.push(attributes::must_use());
+                }
+
+                Some(quote! {
+                    #(#attrs)*
+                    pub unsafe fn #name ( #( #args ),* ) #ret {
+                        #block
+                    }
+                })
+            })
+            .collect()
+    }
 }
 
 impl CodeGenerator for Vtable<'_> {
@@ -2910,6 +3036,13 @@ impl CodeGenerator for CompInfo {
                         discovered_id,
                     );
                 }
+
+                methods.extend(Vtable::codegen_call_methods(
+                    ctx,
+                    item,
+                    self,
+                    &mut method_names,
+                ));
             }
 
             if ctx.options().codegen_config.constructors() {
