@@ -1,21 +1,21 @@
-class BaseVtable {
+class PrimaryBase {
 public:
     virtual void BaseMethod();
     virtual int Overridden(int value);
 };
 
-class OtherBaseVtable {
+class SecondaryBase {
 public:
     virtual float OtherMethod(float value) const;
 };
 
-class DerivedVtable : public BaseVtable {
+class DerivedClass : public PrimaryBase {
 public:
     int Overridden(int value) override;
     virtual void DerivedMethod();
 };
 
-class MultiDerivedVtable : public BaseVtable, public OtherBaseVtable {
+class MultipleDerivedClass : public PrimaryBase, public SecondaryBase {
 public:
     void BaseMethod() override;
     float OtherMethod(float value) const override;

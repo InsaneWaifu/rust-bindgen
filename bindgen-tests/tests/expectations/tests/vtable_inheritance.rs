@@ -1,23 +1,23 @@
 #![allow(dead_code, non_snake_case, non_camel_case_types, non_upper_case_globals)]
 #[repr(C)]
-pub struct BaseVtable__bindgen_vtable {
-    pub BaseVtable_BaseMethod: unsafe extern "C" fn(this: *mut BaseVtable),
-    pub BaseVtable_Overridden: unsafe extern "C" fn(
-        this: *mut BaseVtable,
+pub struct PrimaryBase__bindgen_vtable {
+    pub PrimaryBase_BaseMethod: unsafe extern "C" fn(this: *mut PrimaryBase),
+    pub PrimaryBase_Overridden: unsafe extern "C" fn(
+        this: *mut PrimaryBase,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct BaseVtable {
-    pub vtable_: *const BaseVtable__bindgen_vtable,
+pub struct PrimaryBase {
+    pub vtable_: *const PrimaryBase__bindgen_vtable,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of BaseVtable"][::std::mem::size_of::<BaseVtable>() - 8usize];
-    ["Alignment of BaseVtable"][::std::mem::align_of::<BaseVtable>() - 8usize];
+    ["Size of PrimaryBase"][::std::mem::size_of::<PrimaryBase>() - 8usize];
+    ["Alignment of PrimaryBase"][::std::mem::align_of::<PrimaryBase>() - 8usize];
 };
-impl Default for BaseVtable {
+impl Default for PrimaryBase {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -27,34 +27,34 @@ impl Default for BaseVtable {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN10BaseVtable10BaseMethodEv"]
-    pub fn BaseVtable_BaseMethod(this: *mut ::std::os::raw::c_void);
+    #[link_name = "\u{1}_ZN11PrimaryBase10BaseMethodEv"]
+    pub fn PrimaryBase_BaseMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN10BaseVtable10OverriddenEi"]
-    pub fn BaseVtable_Overridden(
+    #[link_name = "\u{1}_ZN11PrimaryBase10OverriddenEi"]
+    pub fn PrimaryBase_Overridden(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 #[repr(C)]
-pub struct OtherBaseVtable__bindgen_vtable {
-    pub OtherBaseVtable_OtherMethod: unsafe extern "C" fn(
-        this: *const OtherBaseVtable,
+pub struct SecondaryBase__bindgen_vtable {
+    pub SecondaryBase_OtherMethod: unsafe extern "C" fn(
+        this: *const SecondaryBase,
         value: f32,
     ) -> f32,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct OtherBaseVtable {
-    pub vtable_: *const OtherBaseVtable__bindgen_vtable,
+pub struct SecondaryBase {
+    pub vtable_: *const SecondaryBase__bindgen_vtable,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of OtherBaseVtable"][::std::mem::size_of::<OtherBaseVtable>() - 8usize];
-    ["Alignment of OtherBaseVtable"][::std::mem::align_of::<OtherBaseVtable>() - 8usize];
+    ["Size of SecondaryBase"][::std::mem::size_of::<SecondaryBase>() - 8usize];
+    ["Alignment of SecondaryBase"][::std::mem::align_of::<SecondaryBase>() - 8usize];
 };
-impl Default for OtherBaseVtable {
+impl Default for SecondaryBase {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -64,32 +64,32 @@ impl Default for OtherBaseVtable {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZNK15OtherBaseVtable11OtherMethodEf"]
-    pub fn OtherBaseVtable_OtherMethod(
+    #[link_name = "\u{1}_ZNK13SecondaryBase11OtherMethodEf"]
+    pub fn SecondaryBase_OtherMethod(
         this: *mut ::std::os::raw::c_void,
         value: f32,
     ) -> f32;
 }
 #[repr(C)]
-pub struct DerivedVtable__bindgen_vtable {
-    pub BaseVtable_BaseMethod: unsafe extern "C" fn(this: *mut DerivedVtable),
-    pub DerivedVtable_Overridden: unsafe extern "C" fn(
-        this: *mut DerivedVtable,
+pub struct DerivedClass__bindgen_vtable {
+    pub PrimaryBase_BaseMethod: unsafe extern "C" fn(this: *mut DerivedClass),
+    pub DerivedClass_Overridden: unsafe extern "C" fn(
+        this: *mut DerivedClass,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
-    pub DerivedVtable_DerivedMethod: unsafe extern "C" fn(this: *mut DerivedVtable),
+    pub DerivedClass_DerivedMethod: unsafe extern "C" fn(this: *mut DerivedClass),
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct DerivedVtable {
-    pub _base: BaseVtable,
+pub struct DerivedClass {
+    pub _base: PrimaryBase,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of DerivedVtable"][::std::mem::size_of::<DerivedVtable>() - 8usize];
-    ["Alignment of DerivedVtable"][::std::mem::align_of::<DerivedVtable>() - 8usize];
+    ["Size of DerivedClass"][::std::mem::size_of::<DerivedClass>() - 8usize];
+    ["Alignment of DerivedClass"][::std::mem::align_of::<DerivedClass>() - 8usize];
 };
-impl Default for DerivedVtable {
+impl Default for DerivedClass {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -99,50 +99,50 @@ impl Default for DerivedVtable {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN13DerivedVtable10OverriddenEi"]
-    pub fn DerivedVtable_Overridden(
+    #[link_name = "\u{1}_ZN12DerivedClass10OverriddenEi"]
+    pub fn DerivedClass_Overridden(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN13DerivedVtable13DerivedMethodEv"]
-    pub fn DerivedVtable_DerivedMethod(this: *mut ::std::os::raw::c_void);
+    #[link_name = "\u{1}_ZN12DerivedClass13DerivedMethodEv"]
+    pub fn DerivedClass_DerivedMethod(this: *mut ::std::os::raw::c_void);
 }
 #[repr(C)]
-pub struct MultiDerivedVtable__bindgen_vtable {
-    pub MultiDerivedVtable_BaseMethod: unsafe extern "C" fn(
-        this: *mut MultiDerivedVtable,
+pub struct MultipleDerivedClass__bindgen_vtable {
+    pub MultipleDerivedClass_BaseMethod: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
     ),
-    pub BaseVtable_Overridden: unsafe extern "C" fn(
-        this: *mut MultiDerivedVtable,
+    pub PrimaryBase_Overridden: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
         value: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
-    pub MultiDerivedVtable_OtherMethod: unsafe extern "C" fn(
-        this: *const MultiDerivedVtable,
+    pub MultipleDerivedClass_OtherMethod: unsafe extern "C" fn(
+        this: *const MultipleDerivedClass,
         value: f32,
     ) -> f32,
-    pub MultiDerivedVtable_MultiMethod: unsafe extern "C" fn(
-        this: *mut MultiDerivedVtable,
+    pub MultipleDerivedClass_MultiMethod: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct MultiDerivedVtable {
-    pub _base: BaseVtable,
-    pub _base_1: OtherBaseVtable,
+pub struct MultipleDerivedClass {
+    pub _base: PrimaryBase,
+    pub _base_1: SecondaryBase,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     [
-        "Size of MultiDerivedVtable",
-    ][::std::mem::size_of::<MultiDerivedVtable>() - 16usize];
+        "Size of MultipleDerivedClass",
+    ][::std::mem::size_of::<MultipleDerivedClass>() - 16usize];
     [
-        "Alignment of MultiDerivedVtable",
-    ][::std::mem::align_of::<MultiDerivedVtable>() - 8usize];
+        "Alignment of MultipleDerivedClass",
+    ][::std::mem::align_of::<MultipleDerivedClass>() - 8usize];
 };
-impl Default for MultiDerivedVtable {
+impl Default for MultipleDerivedClass {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -152,19 +152,19 @@ impl Default for MultiDerivedVtable {
     }
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN18MultiDerivedVtable10BaseMethodEv"]
-    pub fn MultiDerivedVtable_BaseMethod(this: *mut ::std::os::raw::c_void);
+    #[link_name = "\u{1}_ZN20MultipleDerivedClass10BaseMethodEv"]
+    pub fn MultipleDerivedClass_BaseMethod(this: *mut ::std::os::raw::c_void);
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZThn8_NK18MultiDerivedVtable11OtherMethodEf"]
-    pub fn MultiDerivedVtable_OtherMethod(
+    #[link_name = "\u{1}_ZThn8_NK20MultipleDerivedClass11OtherMethodEf"]
+    pub fn MultipleDerivedClass_OtherMethod(
         this: *mut ::std::os::raw::c_void,
         value: f32,
     ) -> f32;
 }
 unsafe extern "C" {
-    #[link_name = "\u{1}_ZN18MultiDerivedVtable11MultiMethodEj"]
-    pub fn MultiDerivedVtable_MultiMethod(
+    #[link_name = "\u{1}_ZN20MultipleDerivedClass11MultiMethodEj"]
+    pub fn MultipleDerivedClass_MultiMethod(
         this: *mut ::std::os::raw::c_void,
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint;
