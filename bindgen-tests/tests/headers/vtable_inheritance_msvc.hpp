@@ -24,6 +24,12 @@ public:
     ~LeafClass() override;
 };
 
+
+class PassthroughClass : public LeafClass {
+public:
+    int PassthroughValue;
+};
+
 class SecondaryBase {
 public:
     virtual float SecondaryMethod(float value) const;

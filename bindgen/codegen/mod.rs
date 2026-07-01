@@ -1267,6 +1267,23 @@ impl<'a> Vtable<'a> {
         key
     }
 
+    fn has_virtual_base(ctx: &BindgenContext, comp_info: &CompInfo) -> bool {
+        comp_info.base_members().iter().any(|base| {
+            if base.is_virtual() {
+                return true;
+            }
+
+            let base_item = ctx.resolve_item(base.ty);
+            let TypeKind::Comp(ref base_comp_info) =
+                base_item.expect_type().canonical_type(ctx).kind()
+            else {
+                return false;
+            };
+
+            Self::has_virtual_base(ctx, base_comp_info)
+        })
+    }
+
     fn append_virtual_method_entry(
         ctx: &BindgenContext,
         entries: &mut Vec<(String, VtableMethodEntry)>,
@@ -1462,13 +1479,7 @@ impl CodeGenerator for Vtable<'_> {
         let name = ctx.rust_ident(self.canonical_name(ctx));
 
         if ctx.options().vtable_generation &&
-            (self.comp_info.base_members().is_empty() ||
-                self.comp_info.has_own_virtual_method() ||
-                matches!(
-                    self.comp_info.destructor(),
-                    Some((MethodKind::VirtualDestructor { .. }, _))
-                )) &&
-            self.comp_info.base_members().iter().all(|base| !base.is_virtual())
+            !Self::has_virtual_base(ctx, self.comp_info)
         {
             let class_ident = ctx.rust_ident(self.item_id.canonical_name(ctx));
 
@@ -2486,11 +2497,7 @@ impl CodeGenerator for CompInfo {
             if item.has_vtable(ctx) &&
                 ctx.options().vtable_generation &&
                 (item.has_vtable_ptr(ctx) ||
-                    self.has_own_virtual_method() ||
-                    matches!(
-                        self.destructor(),
-                        Some((MethodKind::VirtualDestructor { .. }, _))
-                    ))
+                    !Vtable::has_virtual_base(ctx, self))
             {
                 let vtable = Vtable::new(item.id(), self);
                 vtable.codegen(ctx, result, item);

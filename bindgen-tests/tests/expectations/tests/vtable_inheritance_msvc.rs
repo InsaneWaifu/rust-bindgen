@@ -276,6 +276,89 @@ unsafe extern "C" {
     pub fn LeafClass_LeafClass_destructor(this: *mut LeafClass);
 }
 #[repr(C)]
+pub struct PassthroughClass__bindgen_vtable {
+    pub PrimaryBase_RootMethod: unsafe extern "C" fn(this: *mut PassthroughClass),
+    pub IntermediateClass_Overridden: unsafe extern "C" fn(
+        this: *mut PassthroughClass,
+        value: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc: unsafe extern "C" fn(
+        this: *mut PassthroughClass,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int,
+    pub IntermediateClass_Alloc1: unsafe extern "C" fn(
+        this: *mut PassthroughClass,
+        size: f32,
+    ) -> f32,
+    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
+        this: *mut PassthroughClass,
+    ),
+    pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut PassthroughClass),
+}
+#[repr(C)]
+#[derive(Debug)]
+pub struct PassthroughClass {
+    pub _base: LeafClass,
+    pub PassthroughValue: ::std::os::raw::c_int,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of PassthroughClass"][::std::mem::size_of::<PassthroughClass>() - 16usize];
+    [
+        "Alignment of PassthroughClass",
+    ][::std::mem::align_of::<PassthroughClass>() - 8usize];
+    [
+        "Offset of field: PassthroughClass::PassthroughValue",
+    ][::std::mem::offset_of!(PassthroughClass, PassthroughValue) - 8usize];
+};
+impl Default for PassthroughClass {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+impl PassthroughClass {
+    #[inline]
+    pub unsafe fn RootMethod(&mut self) {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .PrimaryBase_RootMethod)(self)
+    }
+    #[inline]
+    pub unsafe fn Overridden(
+        &mut self,
+        value: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .IntermediateClass_Overridden)(self, value)
+    }
+    #[inline]
+    pub unsafe fn Alloc(
+        &mut self,
+        size: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .IntermediateClass_Alloc)(self, size)
+    }
+    #[inline]
+    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .IntermediateClass_Alloc1)(self, size)
+    }
+    #[inline]
+    pub unsafe fn IntermediateMethod(&mut self) {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .IntermediateClass_IntermediateMethod)(self)
+    }
+    #[inline]
+    pub unsafe fn LeafMethod(&mut self) {
+        ((*(self._base._base._base.vtable_ as *const PassthroughClass__bindgen_vtable))
+            .LeafClass_LeafMethod)(self)
+    }
+}
+#[repr(C)]
 pub struct SecondaryBase__bindgen_vtable {
     pub SecondaryBase_SecondaryMethod: unsafe extern "C" fn(
         this: *const SecondaryBase,
