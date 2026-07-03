@@ -105,13 +105,13 @@ pub struct IntermediateClass__bindgen_vtable {
         this: *mut IntermediateClass,
         size: f32,
     ) -> f32,
-    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
-        this: *mut IntermediateClass,
-    ),
     pub __bindgen_destructor_complete: unsafe extern "C" fn(
         this: *mut IntermediateClass,
     ),
     pub __bindgen_destructor_deleting: unsafe extern "C" fn(
+        this: *mut IntermediateClass,
+    ),
+    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
         this: *mut IntermediateClass,
     ),
 }
@@ -210,10 +210,10 @@ pub struct LeafClass__bindgen_vtable {
         this: *mut LeafClass,
         size: f32,
     ) -> f32,
-    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(this: *mut LeafClass),
-    pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut LeafClass),
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut LeafClass),
     pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut LeafClass),
+    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(this: *mut LeafClass),
+    pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut LeafClass),
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -295,6 +295,8 @@ pub struct PassthroughClass__bindgen_vtable {
         this: *mut PassthroughClass,
         size: f32,
     ) -> f32,
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut PassthroughClass),
+    pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut PassthroughClass),
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
         this: *mut PassthroughClass,
     ),
@@ -426,6 +428,12 @@ pub struct MultipleDerivedClass__bindgen_vtable {
         this: *mut MultipleDerivedClass,
         size: f32,
     ) -> f32,
+    pub __bindgen_destructor_complete: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
+    ),
+    pub __bindgen_destructor_deleting: unsafe extern "C" fn(
+        this: *mut MultipleDerivedClass,
+    ),
     pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
         this: *mut MultipleDerivedClass,
     ),
@@ -438,12 +446,6 @@ pub struct MultipleDerivedClass__bindgen_vtable {
         this: *mut MultipleDerivedClass,
         value: ::std::os::raw::c_uint,
     ) -> ::std::os::raw::c_uint,
-    pub __bindgen_destructor_complete: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
 }
 #[repr(C)]
 #[derive(Debug)]

@@ -1239,9 +1239,18 @@ struct Vtable<'a> {
     comp_info: &'a CompInfo,
 }
 
-struct VtableMethodEntry {
-    signature: FunctionId,
-    is_const: bool,
+#[derive(Clone, Copy)]
+enum VtableEntry {
+    Method {
+        signature: FunctionId,
+        is_const: bool,
+    },
+    Destructor(FunctionId),
+}
+
+enum DirectVtableEntry<'a> {
+    Method(&'a Method),
+    Destructor(FunctionId),
 }
 
 impl<'a> Vtable<'a> {
@@ -1286,7 +1295,7 @@ impl<'a> Vtable<'a> {
 
     fn append_virtual_method_entry(
         ctx: &BindgenContext,
-        entries: &mut Vec<(String, VtableMethodEntry)>,
+        entries: &mut Vec<(String, VtableEntry)>,
         method: &Method,
     ) {
         if !method.is_virtual() {
@@ -1294,7 +1303,7 @@ impl<'a> Vtable<'a> {
         }
 
         let key = Self::virtual_method_key(ctx, method);
-        let entry = VtableMethodEntry {
+        let entry = VtableEntry::Method {
             signature: method.signature(),
             is_const: method.is_const(),
         };
@@ -1311,7 +1320,7 @@ impl<'a> Vtable<'a> {
     fn append_virtual_method_entries(
         ctx: &BindgenContext,
         comp_info: &CompInfo,
-        entries: &mut Vec<(String, VtableMethodEntry)>,
+        entries: &mut Vec<(String, VtableEntry)>,
     ) {
         for base in comp_info.base_members() {
             if base.is_virtual() || !base.requires_storage(ctx) {
@@ -1332,8 +1341,50 @@ impl<'a> Vtable<'a> {
             Self::append_virtual_method_entries(ctx, base_comp_info, entries);
         }
 
-        for method in comp_info.methods() {
-            Self::append_virtual_method_entry(ctx, entries, method);
+        let mut direct_entries = comp_info
+            .methods()
+            .iter()
+            .map(|method| {
+                let location = ctx
+                    .resolve_item(method.signature())
+                    .location()
+                    .map(|location| location.location().3)
+                    .unwrap_or_default();
+                (location, DirectVtableEntry::Method(method))
+            })
+            .collect::<Vec<_>>();
+
+        if let Some((MethodKind::VirtualDestructor { .. }, destructor)) =
+            comp_info.destructor()
+        {
+            let location = ctx
+                .resolve_item(destructor)
+                .location()
+                .map(|location| location.location().3)
+                .unwrap_or_default();
+            direct_entries
+                .push((location, DirectVtableEntry::Destructor(destructor)));
+        }
+
+        direct_entries.sort_by_key(|&(location, _)| location);
+
+        for (_, entry) in direct_entries {
+            match entry {
+                DirectVtableEntry::Method(method) => {
+                    Self::append_virtual_method_entry(ctx, entries, method);
+                }
+                DirectVtableEntry::Destructor(destructor) => {
+                    let entry = VtableEntry::Destructor(destructor);
+                    if let Some((_, existing_entry)) = entries
+                        .iter_mut()
+                        .find(|(key, _)| key == "__bindgen_destructor")
+                    {
+                        *existing_entry = entry;
+                    } else {
+                        entries.push(("__bindgen_destructor".into(), entry));
+                    }
+                }
+            }
         }
     }
 
@@ -1403,7 +1454,14 @@ impl<'a> Vtable<'a> {
         vtable_method_entries
             .into_iter()
             .filter_map(|(_, entry)| {
-                let function_item = ctx.resolve_item(entry.signature);
+                let VtableEntry::Method {
+                    signature,
+                    is_const,
+                } = entry
+                else {
+                    return None;
+                };
+                let function_item = ctx.resolve_item(signature);
                 let function = function_item.expect_function();
                 let signature_item = ctx.resolve_item(function.signature());
                 let TypeKind::Function(ref signature) =
@@ -1436,7 +1494,7 @@ impl<'a> Vtable<'a> {
                 let mut exprs = utils::fnsig_argument_identifiers(ctx, signature);
                 let ret = utils::fnsig_return_ty(ctx, signature);
 
-                args[0] = if entry.is_const {
+                args[0] = if is_const {
                     quote! { &self }
                 } else {
                     quote! { &mut self }
@@ -1490,60 +1548,68 @@ impl CodeGenerator for Vtable<'_> {
                 &mut vtable_method_entries,
             );
 
-            let mut entries = vtable_method_entries
+            let entries = vtable_method_entries
                 .iter()
-                .map(|(_, entry)| {
-                    let function_item = ctx.resolve_item(entry.signature);
-                    let function = function_item.expect_function();
-                    let signature_item = ctx.resolve_item(function.signature());
-                    let TypeKind::Function(ref signature) = signature_item.expect_type().kind() else { panic!("Function signature type mismatch") };
+                .flat_map(|(_, entry)| match *entry {
+                    VtableEntry::Method {
+                        signature,
+                        is_const,
+                    } => {
+                        let function_item = ctx.resolve_item(signature);
+                        let function = function_item.expect_function();
+                        let signature_item = ctx.resolve_item(function.signature());
+                        let TypeKind::Function(ref signature) =
+                            signature_item.expect_type().kind()
+                        else {
+                            panic!("Function signature type mismatch")
+                        };
 
-                    // FIXME: Is there a canonical name without the class prepended?
-                    let function_name = function_item.canonical_name(ctx);
+                        // FIXME: Is there a canonical name without the class prepended?
+                        let function_name = function_item.canonical_name(ctx);
 
-                    // FIXME: Need to account for overloading with times_seen (separately from regular function path).
-                    let function_name = ctx.rust_ident(function_name);
-                    let mut args = utils::fnsig_arguments(ctx, signature);
-                    let ret = utils::fnsig_return_ty(ctx, signature);
+                        // FIXME: Need to account for overloading with times_seen (separately from regular function path).
+                        let function_name = ctx.rust_ident(function_name);
+                        let mut args = utils::fnsig_arguments(ctx, signature);
+                        let ret = utils::fnsig_return_ty(ctx, signature);
 
-                    args[0] = if entry.is_const {
-                        quote! { this: *const #class_ident }
-                    } else {
-                        quote! { this: *mut #class_ident }
-                    };
+                        args[0] = if is_const {
+                            quote! { this: *const #class_ident }
+                        } else {
+                            quote! { this: *mut #class_ident }
+                        };
 
-                    quote! {
-                        pub #function_name : unsafe extern "C" fn( #( #args ),* ) #ret
+                        vec![quote! {
+                            pub #function_name : unsafe extern "C" fn( #( #args ),* ) #ret
+                        }]
+                    }
+                    VtableEntry::Destructor(destructor) => {
+                        let function_item = ctx.resolve_item(destructor);
+                        let function = function_item.expect_function();
+                        let signature_item = ctx.resolve_item(function.signature());
+                        let TypeKind::Function(ref signature) =
+                            signature_item.expect_type().kind()
+                        else {
+                            panic!("Function signature type mismatch")
+                        };
+
+                        let mut args = utils::fnsig_arguments(ctx, signature);
+                        let ret = utils::fnsig_return_ty(ctx, signature);
+                        args[0] = quote! { this: *mut #class_ident };
+
+                        let mut entries = vec![quote! {
+                            pub __bindgen_destructor_complete: unsafe extern "C" fn( #( #args ),* ) #ret
+                        }];
+
+                        if ctx.abi_kind() == ABIKind::GenericItanium {
+                            entries.push(quote! {
+                                pub __bindgen_destructor_deleting: unsafe extern "C" fn( #( #args ),* ) #ret
+                            });
+                        }
+
+                        entries
                     }
                 })
                 .collect::<Vec<_>>();
-
-            if let Some((MethodKind::VirtualDestructor { .. }, destructor)) =
-                self.comp_info.destructor()
-            {
-                let function_item = ctx.resolve_item(destructor);
-                let function = function_item.expect_function();
-                let signature_item = ctx.resolve_item(function.signature());
-                let TypeKind::Function(ref signature) =
-                    signature_item.expect_type().kind()
-                else {
-                    panic!("Function signature type mismatch")
-                };
-
-                let mut args = utils::fnsig_arguments(ctx, signature);
-                let ret = utils::fnsig_return_ty(ctx, signature);
-                args[0] = quote! { this: *mut #class_ident };
-
-                entries.push(quote! {
-                    pub __bindgen_destructor_complete: unsafe extern "C" fn( #( #args ),* ) #ret
-                });
-
-                if ctx.abi_kind() == ABIKind::GenericItanium {
-                    entries.push(quote! {
-                        pub __bindgen_destructor_deleting: unsafe extern "C" fn( #( #args ),* ) #ret
-                    });
-                }
-            }
 
             result.push(quote! {
                 #[repr(C)]

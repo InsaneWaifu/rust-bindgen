@@ -3,6 +3,7 @@
 pub struct nsSlots__bindgen_vtable {
     pub __bindgen_destructor_complete: unsafe extern "C" fn(this: *mut nsSlots),
     pub __bindgen_destructor_deleting: unsafe extern "C" fn(this: *mut nsSlots),
+    pub nsSlots_touch: unsafe extern "C" fn(this: *mut nsSlots),
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -23,7 +24,17 @@ impl Default for nsSlots {
         }
     }
 }
+impl nsSlots {
+    #[inline]
+    pub unsafe fn touch(&mut self) {
+        ((*(self.vtable_ as *const nsSlots__bindgen_vtable)).nsSlots_touch)(self)
+    }
+}
 unsafe extern "C" {
     #[link_name = "\u{1}_ZN7nsSlotsD1Ev"]
     pub fn nsSlots_nsSlots_destructor(this: *mut nsSlots);
+}
+unsafe extern "C" {
+    #[link_name = "\u{1}_ZN7nsSlots5touchEv"]
+    pub fn nsSlots_touch(this: *mut ::std::os::raw::c_void);
 }
