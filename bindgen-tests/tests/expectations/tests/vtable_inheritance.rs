@@ -412,41 +412,7 @@ unsafe extern "C" {
     pub fn SecondaryBase_SecondaryBase_destructor(this: *mut SecondaryBase);
 }
 #[repr(C)]
-pub struct MultipleDerivedClass__bindgen_vtable {
-    pub MultipleDerivedClass_RootMethod: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub IntermediateClass_Overridden: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-        value: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int,
-    pub IntermediateClass_Alloc: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-        size: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int,
-    pub IntermediateClass_Alloc1: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-        size: f32,
-    ) -> f32,
-    pub __bindgen_destructor_complete: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub __bindgen_destructor_deleting: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub IntermediateClass_IntermediateMethod: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-    ),
-    pub LeafClass_LeafMethod: unsafe extern "C" fn(this: *mut MultipleDerivedClass),
-    pub MultipleDerivedClass_SecondaryMethod: unsafe extern "C" fn(
-        this: *const MultipleDerivedClass,
-        value: f32,
-    ) -> f32,
-    pub MultipleDerivedClass_MultipleOnly: unsafe extern "C" fn(
-        this: *mut MultipleDerivedClass,
-        value: ::std::os::raw::c_uint,
-    ) -> ::std::os::raw::c_uint,
-}
+pub struct MultipleDerivedClass__bindgen_vtable(::std::os::raw::c_void);
 #[repr(C)]
 #[derive(Debug)]
 pub struct MultipleDerivedClass {
@@ -469,65 +435,6 @@ impl Default for MultipleDerivedClass {
             ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
             s.assume_init()
         }
-    }
-}
-impl MultipleDerivedClass {
-    #[inline]
-    pub unsafe fn RootMethod(&mut self) {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .MultipleDerivedClass_RootMethod)(self)
-    }
-    #[inline]
-    pub unsafe fn Overridden(
-        &mut self,
-        value: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .IntermediateClass_Overridden)(self, value)
-    }
-    #[inline]
-    pub unsafe fn Alloc(
-        &mut self,
-        size: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .IntermediateClass_Alloc)(self, size)
-    }
-    #[inline]
-    pub unsafe fn Alloc1(&mut self, size: f32) -> f32 {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .IntermediateClass_Alloc1)(self, size)
-    }
-    #[inline]
-    pub unsafe fn IntermediateMethod(&mut self) {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .IntermediateClass_IntermediateMethod)(self)
-    }
-    #[inline]
-    pub unsafe fn LeafMethod(&mut self) {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .LeafClass_LeafMethod)(self)
-    }
-    #[inline]
-    pub unsafe fn SecondaryMethod(&self, value: f32) -> f32 {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .MultipleDerivedClass_SecondaryMethod)(self, value)
-    }
-    #[inline]
-    pub unsafe fn MultipleOnly(
-        &mut self,
-        value: ::std::os::raw::c_uint,
-    ) -> ::std::os::raw::c_uint {
-        ((*(self._base._base._base.vtable_
-            as *const MultipleDerivedClass__bindgen_vtable))
-            .MultipleDerivedClass_MultipleOnly)(self, value)
     }
 }
 unsafe extern "C" {

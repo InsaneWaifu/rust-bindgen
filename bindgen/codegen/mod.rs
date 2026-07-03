@@ -1293,6 +1293,30 @@ impl<'a> Vtable<'a> {
         })
     }
 
+    fn has_multiple_vtable_bases(
+        ctx: &BindgenContext,
+        comp_info: &CompInfo,
+    ) -> bool {
+        comp_info
+            .base_members()
+            .iter()
+            .filter(|base| {
+                !base.is_virtual() &&
+                    base.requires_storage(ctx) &&
+                    ctx.resolve_item(base.ty).has_vtable(ctx)
+            })
+            .nth(1)
+            .is_some()
+    }
+
+    fn supports_concrete_vtable(
+        ctx: &BindgenContext,
+        comp_info: &CompInfo,
+    ) -> bool {
+        !Self::has_virtual_base(ctx, comp_info) &&
+            !Self::has_multiple_vtable_bases(ctx, comp_info)
+    }
+
     fn append_virtual_method_entry(
         ctx: &BindgenContext,
         entries: &mut Vec<(String, VtableEntry)>,
@@ -1431,7 +1455,10 @@ impl<'a> Vtable<'a> {
         comp_info: &CompInfo,
         method_names: &mut HashSet<String>,
     ) -> Vec<proc_macro2::TokenStream> {
-        if !ctx.options().vtable_generation || !item.has_vtable(ctx) {
+        if !ctx.options().vtable_generation ||
+            !item.has_vtable(ctx) ||
+            !Self::supports_concrete_vtable(ctx, comp_info)
+        {
             return vec![];
         }
 
@@ -1537,7 +1564,7 @@ impl CodeGenerator for Vtable<'_> {
         let name = ctx.rust_ident(self.canonical_name(ctx));
 
         if ctx.options().vtable_generation &&
-            !Self::has_virtual_base(ctx, self.comp_info)
+            Self::supports_concrete_vtable(ctx, self.comp_info)
         {
             let class_ident = ctx.rust_ident(self.item_id.canonical_name(ctx));
 
