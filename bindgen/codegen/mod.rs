@@ -1293,28 +1293,11 @@ impl<'a> Vtable<'a> {
         })
     }
 
-    fn has_multiple_vtable_bases(
-        ctx: &BindgenContext,
-        comp_info: &CompInfo,
-    ) -> bool {
-        comp_info
-            .base_members()
-            .iter()
-            .filter(|base| {
-                !base.is_virtual() &&
-                    base.requires_storage(ctx) &&
-                    ctx.resolve_item(base.ty).has_vtable(ctx)
-            })
-            .nth(1)
-            .is_some()
-    }
-
     fn supports_concrete_vtable(
         ctx: &BindgenContext,
         comp_info: &CompInfo,
     ) -> bool {
-        !Self::has_virtual_base(ctx, comp_info) &&
-            !Self::has_multiple_vtable_bases(ctx, comp_info)
+        !Self::has_virtual_base(ctx, comp_info)
     }
 
     fn append_virtual_method_entry(
@@ -1346,6 +1329,9 @@ impl<'a> Vtable<'a> {
         comp_info: &CompInfo,
         entries: &mut Vec<(String, VtableEntry)>,
     ) {
+        let mut found_primary_vtable_base = false;
+        let mut secondary_base_entries = vec![];
+
         for base in comp_info.base_members() {
             if base.is_virtual() || !base.requires_storage(ctx) {
                 continue;
@@ -1362,8 +1348,22 @@ impl<'a> Vtable<'a> {
                 continue;
             };
 
-            Self::append_virtual_method_entries(ctx, base_comp_info, entries);
+            if found_primary_vtable_base {
+                Self::append_virtual_method_entries(
+                    ctx,
+                    base_comp_info,
+                    &mut secondary_base_entries,
+                );
+            } else {
+                Self::append_virtual_method_entries(ctx, base_comp_info, entries);
+                found_primary_vtable_base = true;
+            }
         }
+
+        let secondary_base_keys = secondary_base_entries
+            .iter()
+            .map(|(key, _)| key.as_str())
+            .collect::<HashSet<_>>();
 
         let mut direct_entries = comp_info
             .methods()
@@ -1395,7 +1395,16 @@ impl<'a> Vtable<'a> {
         for (_, entry) in direct_entries {
             match entry {
                 DirectVtableEntry::Method(method) => {
-                    Self::append_virtual_method_entry(ctx, entries, method);
+                    if !method.is_virtual() {
+                        continue;
+                    }
+
+                    let key = Self::virtual_method_key(ctx, method);
+                    let overrides_primary_base =
+                        entries.iter().any(|(existing_key, _)| *existing_key == key);
+                    if overrides_primary_base || !secondary_base_keys.contains(key.as_str()) {
+                        Self::append_virtual_method_entry(ctx, entries, method);
+                    }
                 }
                 DirectVtableEntry::Destructor(destructor) => {
                     let entry = VtableEntry::Destructor(destructor);
