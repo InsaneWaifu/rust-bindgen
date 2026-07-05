@@ -749,8 +749,12 @@ impl ClangSubItemParser for Function {
         if cursor.is_inlined_function() ||
             cursor.definition().is_some_and(|x| x.is_inlined_function())
         {
+            let is_vtable_virtual_destructor =
+                matches!(kind, FunctionKind::Method(MethodKind::VirtualDestructor { .. })) &&
+                context.options().vtable_generation;
             if !context.options().generate_inline_functions &&
-                !context.options().wrap_static_fns
+                !context.options().wrap_static_fns &&
+                !is_vtable_virtual_destructor
             {
                 return Err(ParseError::Continue);
             }

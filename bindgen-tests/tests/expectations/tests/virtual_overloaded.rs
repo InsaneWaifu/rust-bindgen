@@ -23,6 +23,16 @@ impl Default for C {
         }
     }
 }
+impl C {
+    #[inline]
+    pub unsafe fn do_thing(&mut self, arg1: ::std::os::raw::c_char) {
+        ((*(self.vtable_ as *const C__bindgen_vtable)).C_do_thing)(self, arg1)
+    }
+    #[inline]
+    pub unsafe fn do_thing1(&mut self, arg1: ::std::os::raw::c_int) {
+        ((*(self.vtable_ as *const C__bindgen_vtable)).C_do_thing1)(self, arg1)
+    }
+}
 unsafe extern "C" {
     #[link_name = "\u{1}_ZN1C8do_thingEc"]
     pub fn C_do_thing(this: *mut ::std::os::raw::c_void, arg1: ::std::os::raw::c_char);
